@@ -3,21 +3,21 @@ from rest_framework.parsers import JSONParser # type: ignore
 from rest_framework import status # type: ignore
 from rest_framework.decorators import api_view # type: ignore
 
-from voitures.models import Voiture
-from .serializers import VoitureSerializer
+from activites.models import Activite
+from .serializers import ActiviteSerializer
 from drf_yasg.utils import swagger_auto_schema
 
-@swagger_auto_schema(method='post', request_body=VoitureSerializer, responses={201: VoitureSerializer})
+@swagger_auto_schema(method='post', request_body=ActiviteSerializer, responses={201: ActiviteSerializer})
 @api_view(['GET', 'POST', 'DELETE'])
-def voiture_list(request):
+def activite_list(request):
     if request.method == 'GET':
-        voitures = Voiture.objects.all()
+        Activites = Activite.objects.all()
 
         name = request.GET.get('name', None)
         if name is not None:
-            voitures = voitures.filter(name__icontains=name)
+            Activites = Activites.filter(name__icontains=name)
 
-        serializer = VoitureSerializer(voitures, many=True)
+        serializer = ActiviteSerializer(Activites, many=True)
         return JsonResponse(
                 {
                     'success': True,
@@ -27,7 +27,7 @@ def voiture_list(request):
        
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = VoitureSerializer(data=data)
+        serializer = ActiviteSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(
@@ -38,17 +38,17 @@ def voiture_list(request):
                  },status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@swagger_auto_schema(method='put', request_body=VoitureSerializer, operation_description="Met à jour un vehicule")
-@swagger_auto_schema(method='delete', operation_description="Supprime un vehicule par ID")
+@swagger_auto_schema(method='put', request_body=ActiviteSerializer, operation_description="Met à jour un activite")
+@swagger_auto_schema(method='delete', operation_description="Supprime un activite par ID")
 @api_view(['GET', 'PUT', 'DELETE'])
-def voiture_detail(request, pk):
+def activite_detail(request, pk):
     try:
-        voiture = Voiture.objects.get(pk=pk)
-    except Voiture.DoesNotExist:
-        return JsonResponse({'message': 'vehicule not found'}, status=status.HTTP_404_NOT_FOUND)
+        Activite = Activite.objects.get(pk=pk)
+    except Activite.DoesNotExist:
+        return JsonResponse({'message': 'Activite not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = VoitureSerializer(voiture)
+        serializer = ActiviteSerializer(Activite)
         return JsonResponse(
                 {
                     'success': True,
@@ -58,7 +58,7 @@ def voiture_detail(request, pk):
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
-        serializer = VoitureSerializer(voiture, data=data)
+        serializer = ActiviteSerializer(Activite, data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(
@@ -70,5 +70,5 @@ def voiture_detail(request, pk):
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        voiture.delete()
-        return JsonResponse({'message': 'Vehicule deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        Activite.delete()
+        return JsonResponse({'message': 'Activite deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)

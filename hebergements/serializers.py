@@ -9,3 +9,4 @@ class HebergementSerializer(serializers.ModelSerializer):
     amenities = serializers.JSONField(required=False)
     rating = serializers.FloatField(required=False)
     popularity= serializers.IntegerField(required=False)
+    description = serializers.CharField(required=False, allow_blank=True)

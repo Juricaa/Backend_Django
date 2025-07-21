@@ -1,7 +1,10 @@
+from django.urls import path
 from django.conf.urls import url
-from clients import services
+from voitures import services
 
 urlpatterns = [
-    url(r'', services.client_list),
-    url(r'/(?P<pk>[0-9]+)$', services.client_detail),
+    path('', services.voiture_list),
+    path('<str:pk>/', services.voiture_detail),
+
+
 ]

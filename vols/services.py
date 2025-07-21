@@ -3,23 +3,21 @@ from rest_framework.parsers import JSONParser # type: ignore
 from rest_framework import status # type: ignore
 from rest_framework.decorators import api_view # type: ignore
 
-from clients.models import Client
+from voitures.models import Voiture
 from .serializers import ClientSerializer
-
-
 from drf_yasg.utils import swagger_auto_schema
 
 @swagger_auto_schema(method='post', request_body=ClientSerializer, responses={201: ClientSerializer})
 @api_view(['GET', 'POST', 'DELETE'])
-def client_list(request):
+def voiture_list(request):
     if request.method == 'GET':
-        clients = Client.objects.all()
+        voitures = Voiture.objects.all()
 
         name = request.GET.get('name', None)
         if name is not None:
-            clients = clients.filter(name__icontains=name)
+            voitures = voitures.filter(name__icontains=name)
 
-        serializer = ClientSerializer(clients, many=True)
+        serializer = ClientSerializer(voitures, many=True)
         return JsonResponse(
                 {
                     'success': True,
@@ -27,7 +25,6 @@ def client_list(request):
                  
                  },status=status.HTTP_200_OK)
        
-
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = ClientSerializer(data=data)
@@ -35,20 +32,18 @@ def client_list(request):
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
+    
 @swagger_auto_schema(method='put', request_body=ClientSerializer, operation_description="Met à jour un client")
 @swagger_auto_schema(method='delete', operation_description="Supprime un client par ID")
 @api_view(['GET', 'PUT', 'DELETE'])
-def client_detail(request, pk):
+def voiture_detail(request, pk):
     try:
-        client = Client.objects.get(pk=pk)
-    except Client.DoesNotExist:
-        return JsonResponse({'message': 'Client not found'}, status=status.HTTP_404_NOT_FOUND)
+        voiture = Voiture.objects.get(pk=pk)
+    except Voiture.DoesNotExist:
+        return JsonResponse({'message': 'Voiture not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = ClientSerializer(client)
+        serializer = ClientSerializer(voiture)
         return JsonResponse(
                 {
                     'success': True,
@@ -58,12 +53,12 @@ def client_detail(request, pk):
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
-        serializer = ClientSerializer(client, data=data)
+        serializer = ClientSerializer(voiture, data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        client.delete()
-        return JsonResponse({'message': 'Client deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        voiture.delete()
+        return JsonResponse({'message': 'Voiture deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)

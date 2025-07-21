@@ -1,14 +1,5 @@
 from django.db import models
 
-def generate_custom_id():
-    last = Voiture.objects.order_by('-idVoiture').first()
-    if last and last.idVoiture.startswith("VEH"):
-        number = int(last.idVoiture[3:]) + 1
-    else:
-        number = 1
-    return f"VEH{number:04d}"
-
-
 class Voiture(models.Model):
     AVAILABILITY_CHOICES = [
         ('available', 'Disponible'),
@@ -16,12 +7,7 @@ class Voiture(models.Model):
         ('maintenance', 'Maintenance'),
     ]
 
-    idVoiture = models.CharField(
-        primary_key=True,
-        max_length=10,
-        default=generate_custom_id,
-        editable=False
-    )
+    idVoiture = models.CharField(primary_key=True, max_length=50)
     vehicleType = models.CharField(max_length=100)
     brand = models.CharField(max_length=100)
     model = models.CharField(max_length=100)

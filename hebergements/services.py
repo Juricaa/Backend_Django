@@ -30,7 +30,12 @@ def hebergement_list(request):
             hebergements = hebergements.filter(type__iexact=type_heb)
 
         serializer = HebergementSerializer(hebergements, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return JsonResponse(
+                {
+                    'success': True,
+                    'data': serializer.data
+                 
+                 },status=status.HTTP_200_OK)
 
     # CREATE
     elif request.method == 'POST':
