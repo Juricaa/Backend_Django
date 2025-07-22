@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class ClientsConfig(AppConfig):
+class VolsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'voitures'
+    name = 'vols'
 
    
         

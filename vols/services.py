@@ -3,21 +3,21 @@ from rest_framework.parsers import JSONParser # type: ignore
 from rest_framework import status # type: ignore
 from rest_framework.decorators import api_view # type: ignore
 
-from voitures.models import Voiture
-from .serializers import ClientSerializer
+from vols.models import Vol
+from .serializers import VolSerializer
 from drf_yasg.utils import swagger_auto_schema
 
-@swagger_auto_schema(method='post', request_body=ClientSerializer, responses={201: ClientSerializer})
+@swagger_auto_schema(method='post', request_body=VolSerializer, responses={201: VolSerializer})
 @api_view(['GET', 'POST', 'DELETE'])
-def voiture_list(request):
+def vol_list(request):
     if request.method == 'GET':
-        voitures = Voiture.objects.all()
+        vols = Vol.objects.all()
 
         name = request.GET.get('name', None)
         if name is not None:
-            voitures = voitures.filter(name__icontains=name)
+            vols = vols.filter(name__icontains=name)
 
-        serializer = ClientSerializer(voitures, many=True)
+        serializer = VolSerializer(vols, many=True)
         return JsonResponse(
                 {
                     'success': True,
@@ -27,23 +27,28 @@ def voiture_list(request):
        
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = ClientSerializer(data=data)
+        serializer = VolSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+            return JsonResponse(
+                {
+                    'success': True,
+                    'data': serializer.data
+                 
+                 },status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@swagger_auto_schema(method='put', request_body=ClientSerializer, operation_description="Met à jour un client")
-@swagger_auto_schema(method='delete', operation_description="Supprime un client par ID")
+@swagger_auto_schema(method='put', request_body=VolSerializer, operation_description="Met à jour un vol")
+@swagger_auto_schema(method='delete', operation_description="Supprime un vol par ID")
 @api_view(['GET', 'PUT', 'DELETE'])
-def voiture_detail(request, pk):
+def vol_detail(request, pk):
     try:
-        voiture = Voiture.objects.get(pk=pk)
-    except Voiture.DoesNotExist:
-        return JsonResponse({'message': 'Voiture not found'}, status=status.HTTP_404_NOT_FOUND)
+        vol = Vol.objects.get(pk=pk)
+    except Vol.DoesNotExist:
+        return JsonResponse({'message': 'Vol not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = ClientSerializer(voiture)
+        serializer = VolSerializer(vol)
         return JsonResponse(
                 {
                     'success': True,
@@ -53,12 +58,16 @@ def voiture_detail(request, pk):
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
-        serializer = ClientSerializer(voiture, data=data)
+        serializer = VolSerializer(vol, data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return JsonResponse(
+                {
+                    'success': True,
+                    'data': serializer.data
+                 
+                 },status=status.HTTP_200_OK)
+        return JsonResponse(serializer.errors, status=400)
     elif request.method == 'DELETE':
-        voiture.delete()
-        return JsonResponse({'message': 'Voiture deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        vol.delete()
+        return JsonResponse({'message': 'Vol deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)

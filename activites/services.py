@@ -11,13 +11,13 @@ from drf_yasg.utils import swagger_auto_schema
 @api_view(['GET', 'POST', 'DELETE'])
 def activite_list(request):
     if request.method == 'GET':
-        Activites = Activite.objects.all()
+        activites = Activite.objects.all()
 
         name = request.GET.get('name', None)
         if name is not None:
-            Activites = Activites.filter(name__icontains=name)
+            activites = activites.filter(name__icontains=name)
 
-        serializer = ActiviteSerializer(Activites, many=True)
+        serializer = ActiviteSerializer(activites, many=True)
         return JsonResponse(
                 {
                     'success': True,
@@ -43,12 +43,12 @@ def activite_list(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 def activite_detail(request, pk):
     try:
-        Activite = Activite.objects.get(pk=pk)
-    except Activite.DoesNotExist:
-        return JsonResponse({'message': 'Activite not found'}, status=status.HTTP_404_NOT_FOUND)
+        activite = Activite.objects.get(pk=pk)
+    except activite.DoesNotExist:
+        return JsonResponse({'message': 'activite not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = ActiviteSerializer(Activite)
+        serializer = ActiviteSerializer(activite)
         return JsonResponse(
                 {
                     'success': True,
@@ -58,7 +58,7 @@ def activite_detail(request, pk):
 
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
-        serializer = ActiviteSerializer(Activite, data=data)
+        serializer = ActiviteSerializer(activite, data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(
@@ -70,5 +70,5 @@ def activite_detail(request, pk):
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        Activite.delete()
+        activite.delete()
         return JsonResponse({'message': 'Activite deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
