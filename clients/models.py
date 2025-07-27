@@ -1,8 +1,18 @@
 from django.utils import timezone
 from django.db import models
 
+def generate_custom_client_id():
+    last = Client.objects.order_by('-idClient').first()
+    if last and last.idClient.startswith("C"):
+        number = int(last.idClient[3:]) + 1
+    else:
+        number = 1
+    return f"C{number:04d}"
 class Client(models.Model):
-    idClient = models.CharField(primary_key=True, max_length=10)
+    idClient = models.CharField(primary_key=True,
+        max_length=10,
+        default=generate_custom_client_id,
+        editable=False)
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=50)

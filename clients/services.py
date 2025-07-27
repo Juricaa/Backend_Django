@@ -33,7 +33,12 @@ def client_list(request):
         serializer = ClientSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+            return JsonResponse(
+                {
+                    'success': True,
+                    'data': serializer.data
+                 
+                 },status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -61,9 +66,20 @@ def client_detail(request, pk):
         serializer = ClientSerializer(client, data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
+            return JsonResponse(
+                {
+                    'success': True,
+                    'data': serializer.data
+                 
+                 },status=status.HTTP_200_OK)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
         client.delete()
-        return JsonResponse({'message': 'Client deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+        return  JsonResponse(
+                {
+                    'success': True,
+                    'message': 'Vol deleted successfully!'
+                 
+                 },status=status.HTTP_200_OK)
+

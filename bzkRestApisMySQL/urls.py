@@ -26,6 +26,7 @@ urlpatterns = [
        path('api/voitures/', include('voitures.urls')),
        path('api/activites/', include('activites.urls')),
        path('api/vols/', include('vols.urls')),
+       path('api/reservations/', include('reservations.urls')),
 
        re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'), # type: ignore
        path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), # type: ignore

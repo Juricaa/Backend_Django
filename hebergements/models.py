@@ -23,7 +23,7 @@ class Hebergement(models.Model):
     type = models.CharField(max_length=50)  # ex: Bungalow, Hôtel
     location = models.CharField(max_length=100)
     address = models.TextField()
-    priceRange = models.CharField(max_length=100)
+    priceRange = models.DecimalField(max_digits=20, decimal_places=2)
     rating = models.FloatField()
     amenities = models.JSONField()  # Liste des équipements (wifi, spa, etc.)
     capacity = models.PositiveIntegerField()
@@ -34,7 +34,7 @@ class Hebergement(models.Model):
     createdAt = models.DateTimeField(default=timezone.now)
     lastUsed = models.DateTimeField(default=timezone.now)
     updatedAt = models.DateTimeField(auto_now=True)
-
+    popularity = models.PositiveIntegerField(default=0)
    
     
 

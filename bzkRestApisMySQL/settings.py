@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'voitures.apps.VoituresConfig',
     'activites.apps.ActivitesConfig',
     'vols.apps.VolsConfig',
+    'reservations.apps.ReservationsConfig',
     # CORS
     'corsheaders',
 ]
