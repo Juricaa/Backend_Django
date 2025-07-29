@@ -3,9 +3,6 @@ from .models import Facture, Client
 # Dans factures/serializers.py
 from clients.serializers import ClientSerializer  # Utilisez le même sérialiseur
  
- 
-
-
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
@@ -19,6 +16,8 @@ class FactureSerializer(serializers.ModelSerializer):
         model = Facture
         fields = '__all__'
 
-    # lieu_depart= serializers.JSONField(required=False)
-    # lieu_arrivee = serializers.JSONField(required=False)    
-   
+class FactureSerializerCreated(serializers.ModelSerializer):
+
+    class Meta:
+        model = Facture
+        fields = '__all__'

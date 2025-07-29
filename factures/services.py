@@ -4,10 +4,11 @@ from rest_framework import status
 from django.http.response import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from .models import Facture
-from .serializers import FactureSerializer
+from .serializers import FactureSerializer, FactureSerializerCreated
+# from serializersCopy import FactureSerializerS
 from clients.models import Client
 
-@swagger_auto_schema(method='post', request_body=FactureSerializer)
+@swagger_auto_schema(method='post', request_body=FactureSerializerCreated)
 @api_view(['GET', 'POST'])
 def facture_list(request):
     if request.method == 'GET':
@@ -17,7 +18,7 @@ def facture_list(request):
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = FactureSerializer(data=data)
+        serializer = FactureSerializerCreated(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
