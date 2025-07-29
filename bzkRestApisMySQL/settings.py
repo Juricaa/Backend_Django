@@ -78,6 +78,8 @@ INSTALLED_APPS = [
     'activites.apps.ActivitesConfig',
     'vols.apps.VolsConfig',
     'reservations.apps.ReservationsConfig',
+    'factures.apps.FacturesConfig',
+
     # CORS
     'corsheaders',
 ]

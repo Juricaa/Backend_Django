@@ -1,3 +1,6 @@
+import datetime
+from subprocess import CREATE_NEW_CONSOLE
+from django.db import connection
 from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -7,6 +10,16 @@ from drf_yasg.utils import swagger_auto_schema
 from .models import Reservation
 from .serializers import ReservationSerializer
 from clients.models import Client
+from django.db.models import Q
+from factures.models import Facture
+from vols.models import Vol
+from hebergements.models import Hebergement
+from voitures.models import Voiture
+from activites.models import Activite
+from rest_framework.response import Response
+
+from django.http import JsonResponse
+from datetime import datetime
 
 @swagger_auto_schema(method='post', request_body=ReservationSerializer)
 @api_view(['GET', 'POST'])
@@ -73,3 +86,132 @@ def reservation_total_par_client(request):
             'montant_total': total
         })
     return JsonResponse({'success': True, 'data': data}, status=200)
+
+
+
+
+@api_view(['GET'])
+
+# def reservations_par_client_et_periode(request, client_id):
+#     try:
+#         factures = Facture.objects.filter(clientId_id=client_id)
+#         reservations = Reservation.objects.filter(id_client_id=client_id)
+
+#         results = []
+
+#         for res in reservations:
+#             for facture in factures:
+#                 if res.date_debut >= facture.dateTravel and res.date_fin <= facture.dateReturn:
+#                     # Récupérer l'objet lié dynamiquement
+#                     try:
+#                         model_class = res.content_type.model_class()
+#                         related_object = model_class.objects.get(pk=res.object_id)
+#                         related_data = related_object.__dict__
+#                         related_data.pop("_state", None)
+#                     except Exception:
+#                         related_data = {}
+
+#                     results.append({
+#                         'reservation': ReservationSerializer(res).data,
+#                         'objet_reserve': related_data
+#                     })
+
+#         return JsonResponse({'success': True, 'data': results}, status=200)
+
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+
+
+def reservations_par_client_et_periode(request, client_id):
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    
+    
+    if not date_debut or not date_fin:
+        return JsonResponse({'error': 'Les paramètres date_debut et date_fin sont requis'}, status=400)
+    
+    try:
+        datetime.strptime(date_debut, '%Y-%m-%d')
+        datetime.strptime(date_fin, '%Y-%m-%d')
+    except ValueError:
+        return JsonResponse({'error': 'Format de date invalide. Utilisez YYYY-MM-DD'}, status=400)
+    
+    # Récupérer les réservations
+    reservations = Reservation.objects.filter(
+        id_client_id=client_id,
+        date_debut__gte=date_debut,
+        date_fin__lte=date_fin
+    )
+    
+    # Préparer les données
+    results = []
+    
+    # Récupérer tous les IDs par type
+    hebergement_ids = [r.object_id for r in reservations if r.type == 'hebergement']
+    voiture_ids = [r.object_id for r in reservations if r.type == 'voiture']
+    activite_ids = [r.object_id for r in reservations if r.type == 'activité']
+    vol_ids = [r.object_id for r in reservations if r.type == 'vol']
+    
+    # Charger tous les objets en une seule requête par type
+    hebergements = {h.idHebergement: h for h in Hebergement.objects.filter(idHebergement__in=hebergement_ids)}
+    voitures = {v.idVoiture: v for v in Voiture.objects.filter(idVoiture__in=voiture_ids)}
+    activites = {a.idActivite: a for a in Activite.objects.filter(idActivite__in=activite_ids)}
+    vols = {v.idVol: v for v in Vol.objects.filter(idVol__in=vol_ids)}
+    
+    for reservation in reservations:
+        item_data = None
+        
+        if reservation.type == 'hebergement' and reservation.object_id in hebergements:
+            h = hebergements[reservation.object_id]
+            item_data = {
+                'type': 'hebergement',
+                'id': h.idHebergement,
+                'name': h.name,
+                'location': h.location,
+                'priceRange': h.priceRange
+            }
+        
+        elif reservation.type == 'voiture' and reservation.object_id in voitures:
+            v = voitures[reservation.object_id]
+            item_data = {
+                'type': 'voiture',
+                'id': v.idVoiture,
+                'brand': v.brand,
+                'model': v.model,
+                'pricePerDay': v.pricePerDay
+            }
+        
+        elif reservation.type == 'activité' and reservation.object_id in activites:
+            a = activites[reservation.object_id]
+            item_data = {
+                'type': 'activite',
+                'id': a.idActivite,
+                'name': a.name,
+                'category': a.category,
+                'priceAdult': a.priceAdult
+            }
+        
+        elif reservation.type == 'vol' and reservation.object_id in vols:
+            v = vols[reservation.object_id]
+            item_data = {
+                'type': 'vol',
+                'id': v.idVol,
+                'airline': v.airline,
+                'flightNumber': v.flightNumber,
+                'route_from': v.route_from,
+                'route_to': v.route_to,
+                'price': v.price
+            }
+        
+        results.append({
+            'idReservation': reservation.idReservation,
+            'date_debut': reservation.date_debut.strftime('%Y-%m-%d'),
+            'date_fin': reservation.date_fin.strftime('%Y-%m-%d'),
+            'quantite': reservation.quantite,
+            'montant': str(reservation.montant),
+            'item': item_data
+        })
+    
+    return JsonResponse({'success': True, 'data': results}, safe=False)
