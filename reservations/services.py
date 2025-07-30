@@ -72,6 +72,43 @@ def reservation_detail(request, pk):
         reservation.delete()
         return JsonResponse({'message': 'Réservation supprimée'}, status=status.HTTP_204_NO_CONTENT)
 
+@api_view(['DELETE'])
+def supprimer_reservations_client_periode(request, client_id):
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    
+    # Validation des paramètres
+    if not date_debut or not date_fin:
+        return Response(
+            {'error': 'Les paramètres date_debut et date_fin sont requis'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        datetime.strptime(date_debut, '%Y-%m-%d')
+        datetime.strptime(date_fin, '%Y-%m-%d')
+    except ValueError:
+        return Response(
+            {'error': 'Format de date invalide. Utilisez YYYY-MM-DD'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Récupération et suppression
+    reservations = Reservation.objects.filter(
+        id_client_id=client_id,
+        date_debut__gte=date_debut,
+        date_fin__lte=date_fin
+    )
+    
+    count = reservations.count()
+    reservations.delete()
+    
+    return Response({
+        'success': True,
+        'message': f'{count} réservation(s) supprimée(s)',
+        'client_id': client_id,
+        'periode': f'{date_debut} à {date_fin}'
+    }, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def reservation_total_par_client(request):
