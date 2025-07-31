@@ -207,7 +207,8 @@ def reservations_par_client_et_periode(request, client_id):
                 'id': h.idHebergement,
                 'name': h.name,
                 'location': h.location,
-                'priceRange': h.priceRange
+                'priceRange': h.priceRange,
+                'capacity': h.capacity
             }
         
         elif reservation.type == 'voiture' and reservation.object_id in voitures:
@@ -217,7 +218,9 @@ def reservations_par_client_et_periode(request, client_id):
                 'id': v.idVoiture,
                 'brand': v.brand,
                 'model': v.model,
-                'pricePerDay': v.pricePerDay
+                'pricePerDay': v.pricePerDay,
+                'vehicleType': v.vehicleType,
+
             }
         
         elif reservation.type == 'activité' and reservation.object_id in activites:
@@ -227,7 +230,8 @@ def reservations_par_client_et_periode(request, client_id):
                 'id': a.idActivite,
                 'name': a.name,
                 'category': a.category,
-                'priceAdult': a.priceAdult
+                'priceAdult': a.priceAdult,
+                'duration': a.duration
             }
         
         elif reservation.type == 'vol' and reservation.object_id in vols:
@@ -246,6 +250,8 @@ def reservations_par_client_et_periode(request, client_id):
             'idReservation': reservation.idReservation,
             'date_debut': reservation.date_debut.strftime('%Y-%m-%d'),
             'date_fin': reservation.date_fin.strftime('%Y-%m-%d'),
+            'lieu_depart': reservation.lieu_depart,
+            'lieu_arrivee': reservation.lieu_arrivee,   
             'quantite': reservation.quantite,
             'montant': str(reservation.montant),
             'item': item_data
